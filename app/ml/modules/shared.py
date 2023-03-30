@@ -8,12 +8,14 @@ import time
 from PIL import Image
 import gradio as gr
 import tqdm
+from app.api.errors import errors
+from app.api.helpers import extensions, localization, script_loading, ui_components
 
 import app.ml.modules.interrogate
 import app.ml.modules.memmon
 import app.ml.modules.styles
 import app.ml.modules.devices as devices
-from app.ml.modules import localization, extensions, script_loading, errors, ui_components, shared_items
+from app.ml.modules import shared_items
 from app.ml.modules.paths import models_path, script_path, data_path
 
 

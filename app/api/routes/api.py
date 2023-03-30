@@ -4,4 +4,4 @@ from app.api.routes import interrogate
 
 app = APIRouter()
 
-app.include_router(interrogate.router, tags=["User"], prefix="/admin/user")
+app.include_router(interrogate.router, tags=["User"], prefix="/clip")

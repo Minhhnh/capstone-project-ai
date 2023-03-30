@@ -1,7 +1,7 @@
 import sys
 import contextlib
 import torch
-from app.ml.modules import errors
+from app.api.errors import errors
 
 if sys.platform == "darwin":
     from app.ml.modules import mac_specific
