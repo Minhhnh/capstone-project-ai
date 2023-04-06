@@ -1,2 +1,1 @@
-from app.api.database.models.request import InterrogateRequest
-from app.api.database.models.response import InterrogateResponse
+from app.api.database.models.interrogate import InterrogateRequest, InterrogateResponse

@@ -13,7 +13,7 @@ logger = configure_logging(__name__)
 router = APIRouter()
 
 
-@router.post("/interrogate", response_model=InterrogateResponse)
+@router.post("/", response_model=InterrogateResponse)
 async def interrogateapi(interrogatereq: InterrogateRequest):
     image_b64 = interrogatereq.image
     if image_b64 is None:
