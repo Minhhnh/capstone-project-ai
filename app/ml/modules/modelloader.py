@@ -30,7 +30,8 @@ def load_models(model_path: str, model_url: str = None, command_path: str = None
         places = []
 
         if command_path is not None and command_path != model_path:
-            pretrained_path = os.path.join(command_path, 'experiments/pretrained_models')
+            pretrained_path = os.path.join(
+                command_path, 'experiments/pretrained_models')
             if os.path.exists(pretrained_path):
                 print(f"Appending path: {pretrained_path}")
                 places.append(pretrained_path)
@@ -100,7 +101,8 @@ def cleanup_models():
     src_path = os.path.join(root_path, "SwinIR")
     dest_path = os.path.join(models_path, "SwinIR")
     move_files(src_path, dest_path)
-    src_path = os.path.join(root_path, "repositories/latent-diffusion/experiments/pretrained_models/")
+    src_path = os.path.join(
+        root_path, "repositories/latent-diffusion/experiments/pretrained_models/")
     dest_path = os.path.join(models_path, "LDSR")
     move_files(src_path, dest_path)
 
@@ -148,7 +150,7 @@ def forbid_loaded_nonbuiltin_upscalers():
 def load_upscalers():
     # We can only do this 'magic' method to dynamically load upscalers if they are referenced,
     # so we'll try to import any _model.py files before looking in __subclasses__
-    modules_dir = os.path.join(shared.script_path, "modules")
+    modules_dir = os.path.join(shared.script_path, "app/ml/modules")
     for file in os.listdir(modules_dir):
         if "_model.py" in file:
             model_name = file.replace("_model.py", "")
@@ -172,5 +174,6 @@ def load_upscalers():
     shared.sd_upscalers = sorted(
         datas,
         # Special case for UpscalerNone keeps it at the beginning of the list.
-        key=lambda x: x.name.lower() if not isinstance(x.scaler, (UpscalerNone, UpscalerLanczos, UpscalerNearest)) else ""
+        key=lambda x: x.name.lower() if not isinstance(
+            x.scaler, (UpscalerNone, UpscalerLanczos, UpscalerNearest)) else ""
     )

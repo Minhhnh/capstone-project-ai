@@ -54,6 +54,10 @@ def get_device_for(task):
     return get_optimal_device()
 
 
+def get_all_devices():
+    return torch.cuda.device_count()
+
+
 def torch_gc():
     if torch.cuda.is_available():
         with torch.cuda.device(get_cuda_device_string()):
@@ -77,6 +81,7 @@ errors.run(enable_tf32, "Enabling TF32")
 
 cpu = torch.device("cpu")
 device = device_interrogate = device_gfpgan = device_esrgan = device_codeformer = None
+number_of_devices = get_all_devices()
 dtype = torch.float16
 dtype_vae = torch.float16
 dtype_unet = torch.float16

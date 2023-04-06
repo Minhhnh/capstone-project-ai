@@ -6,6 +6,7 @@ from typing import cast
 from loguru import logger
 
 
+# It takes a Python logging record, converts it to a Loguru record, and then logs it.
 class InterceptHandler(logging.Handler):
     def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover
         """

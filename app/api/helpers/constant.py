@@ -13,3 +13,8 @@ class RepositoryConstant:
         'STABLE_DIFFUSION_REPO', "https://github.com/Stability-AI/stablediffusion.git")
     STABLE_DIFFUSION_COMMIT_HASH = os.environ.get(
         'STABLE_DIFFUSION_COMMIT_HASH', "47b6b607fdd31875c9279cd2f4f16b92e4ea958e")
+
+    K_DIFFUSION_REPO = os.environ.get(
+        'K_DIFFUSION_REPO', 'https://github.com/crowsonkb/k-diffusion.git')
+    K_DIFFUSION_COMMIT_HASH = os.environ.get(
+        'K_DIFFUSION_COMMIT_HASH', "5b3af030dd83e0297272d861c19477735d0317ec")

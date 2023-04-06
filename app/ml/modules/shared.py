@@ -123,7 +123,7 @@ parser.add_argument("--disable-opt-split-attention", action='store_true',
 parser.add_argument("--disable-nan-check", action='store_true',
                     help="do not check if produced images/latent spaces have nans; useful for running without a checkpoint in CI")
 parser.add_argument("--use-cpu", nargs='+',
-                    help="use CPU as torch device for specified modules", default=[], type=str.lower)
+                    help="use CPU as torch device for specified modules", default=False, type=bool)
 parser.add_argument("--listen", action='store_true',
                     help="launch gradio with 0.0.0.0 as server name, allowing to respond to network requests")
 parser.add_argument("--port", type=int,
@@ -234,9 +234,17 @@ ui_reorder_categories = [
 cmd_opts.disable_extension_access = (
     cmd_opts.share or cmd_opts.listen or cmd_opts.server_name) and not cmd_opts.enable_insecure_extension_access
 
-devices.device, devices.device_interrogate, devices.device_gfpgan, devices.device_esrgan, devices.device_codeformer = \
-    (devices.cpu if any(y in cmd_opts.use_cpu for y in [x, 'all']) else devices.get_optimal_device(
-    ) for x in ['sd', 'interrogate', 'gfpgan', 'esrgan', 'codeformer'])
+from torch import device
+if cmd_opts.use_cpu:
+    devices.device = devices.device_interrogate = devices.cpu
+elif devices.number_of_devices == 1:
+    devices.device, devices.device_interrogate = device("cuda:0"), device("cuda:0")
+else:
+    devices.device, devices.device_interrogate = device("cuda:0"), device("cuda:1")
+
+# devices.device, devices.device_interrogate, devices.device_gfpgan, devices.device_esrgan, devices.device_codeformer = \
+#     (devices.cpu if any(y in cmd_opts.use_cpu for y in [x, 'all']) else devices.get_optimal_device(
+#     ) for x in ['sd', 'interrogate', 'gfpgan', 'esrgan', 'codeformer'])
 
 device = devices.device
 weight_load_location = None if cmd_opts.lowram else "cpu"
@@ -386,17 +394,17 @@ def options_section(section_identifier, options_dict):
 
 
 def list_checkpoint_tiles():
-    import app.ml.app.ml.modules.sd_models
+    import app.ml.modules.sd_models
     return app.ml.modules.sd_models.checkpoint_tiles()
 
 
 def refresh_checkpoints():
-    import app.ml.app.ml.modules.sd_models
+    import app.ml.modules.sd_models
     return app.ml.modules.sd_models.list_models()
 
 
 def list_samplers():
-    import app.ml.app.ml.modules.sd_samplers
+    import app.ml.modules.sd_samplers
     return app.ml.modules.sd_samplers.all_samplers
 
 

@@ -255,3 +255,8 @@ Thumbs.db
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python,jupyternotebooks,vscode,visualstudiocode
 >>>>>>> Add interrogate path
+app/ml/params.txt
+.gitignore
+localizations/Put localization files here.txt
+test.py
+app/ml/cache.json.lock
