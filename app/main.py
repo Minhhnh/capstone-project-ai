@@ -14,12 +14,42 @@ from fastapi.templating import Jinja2Templates
 from packaging import version
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse
+from app.api.helpers.constant import SCRIPT_PATH, RepositoryConstant
+from app.ml.modules import script_callbacks
+
+if not os.path.exists(os.path.join(SCRIPT_PATH, RepositoryConstant.DIR_REPOS)):
+    from app.api.helpers.utils import git_clone, repo_dir
+
+    def prepare_environment():
+        os.makedirs(
+            os.path.join(SCRIPT_PATH, RepositoryConstant.DIR_REPOS), exist_ok=True
+        )
+        git_clone(
+            RepositoryConstant.BLIP_REPO,
+            repo_dir("BLIP"),
+            "BLIP",
+            RepositoryConstant.BLIP_CONMIT_HASH,
+        )
+        git_clone(
+            RepositoryConstant.STABLE_DIFFUSION_REPO,
+            repo_dir("stable-diffusion-stability-ai"),
+            "Stable Diffusion",
+            RepositoryConstant.STABLE_DIFFUSION_COMMIT_HASH,
+        )
+        git_clone(
+            RepositoryConstant.K_DIFFUSION_REPO,
+            repo_dir("k-diffusion"),
+            "K-diffusion",
+            RepositoryConstant.K_DIFFUSION_COMMIT_HASH,
+        )
+
+    prepare_environment()
+
 
 import app.ml.modules.face_restoration
 import app.ml.modules.hypernetworks.hypernetwork
 import app.ml.modules.img2img
 import app.ml.modules.lowvram
-import app.ml.modules.script_callbacks
 import app.ml.modules.scripts
 import app.ml.modules.sd_hijack
 import app.ml.modules.sd_models
@@ -30,12 +60,13 @@ from app.api.errors import errors
 from app.api.errors.http_error import http_error_handler
 from app.api.errors.validation_error import http422_error_handler
 from app.api.helpers import extensions, localization
-from app.api.helpers.constant import SCRIPT_PATH, RepositoryConstant
-from app.api.helpers.utils import git_clone, repo_dir
 from app.core.config import ALLOWED_HOSTS, API_PREFIX, DEBUG, PROJECT_NAME, VERSION
 from app.ml.modules import modelloader, script_callbacks, shared, timer
 from app.ml.modules.call_queue import wrap_queued_call
 from app.ml.modules.shared import cmd_opts
+
+script_callbacks.model_loaded_callback(shared.sd_model)
+cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "1,0")
 
 logging.getLogger("xformers").addFilter(
     lambda record: "A matching Triton is not available" not in record.getMessage()
@@ -58,30 +89,6 @@ if ".dev" in torch.__version__ or "+git" in torch.__version__:
 
 
 startup_timer.record("other imports")
-
-
-def prepare_environment():
-    os.makedirs(os.path.join(SCRIPT_PATH, RepositoryConstant.DIR_REPOS), exist_ok=True)
-    git_clone(
-        RepositoryConstant.BLIP_REPO,
-        repo_dir("BLIP"),
-        "BLIP",
-        RepositoryConstant.BLIP_CONMIT_HASH,
-    )
-    git_clone(
-        RepositoryConstant.STABLE_DIFFUSION_REPO,
-        repo_dir("stable-diffusion-stability-ai"),
-        "Stable Diffusion",
-        RepositoryConstant.STABLE_DIFFUSION_COMMIT_HASH,
-    )
-    git_clone(
-        RepositoryConstant.K_DIFFUSION_REPO,
-        repo_dir("k-diffusion"),
-        "K-diffusion",
-        RepositoryConstant.K_DIFFUSION_COMMIT_HASH,
-    )
-    script_callbacks.model_loaded_callback(shared.sd_model)
-    cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "1,0")
 
 
 def check_versions():
@@ -213,7 +220,6 @@ def initialize():
     signal.signal(signal.SIGINT, sigint_handler)
 
 
-prepare_environment()
 initialize()
 
 
