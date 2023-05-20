@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from packaging import version
-from starlette.exceptions import HTTPException #-_- ai phá đấy
+from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse
 
 import app.ml.modules.face_restoration
@@ -32,14 +32,14 @@ from app.api.errors.validation_error import http422_error_handler
 from app.api.helpers import extensions, localization
 from app.api.helpers.constant import SCRIPT_PATH, RepositoryConstant
 from app.api.helpers.utils import git_clone, repo_dir
-from app.core.config import (ALLOWED_HOSTS, API_PREFIX, DEBUG, PROJECT_NAME,
-                             VERSION)
-from app.ml.modules import (modelloader, script_callbacks, shared, timer)
+from app.core.config import ALLOWED_HOSTS, API_PREFIX, DEBUG, PROJECT_NAME, VERSION
+from app.ml.modules import modelloader, script_callbacks, shared, timer
 from app.ml.modules.call_queue import wrap_queued_call
 from app.ml.modules.shared import cmd_opts
 
 logging.getLogger("xformers").addFilter(
-    lambda record: 'A matching Triton is not available' not in record.getMessage())
+    lambda record: "A matching Triton is not available" not in record.getMessage()
+)
 
 
 startup_timer = timer.Timer()
@@ -54,7 +54,7 @@ startup_timer.record("import ldm")
 # Truncate version number of nightly/local build of PyTorch to not cause exceptions with CodeFormer or Safetensors
 if ".dev" in torch.__version__ or "+git" in torch.__version__:
     torch.__long_version__ = torch.__version__
-    torch.__version__ = re.search(r'[\d.]+[\d]', torch.__version__).group(0)
+    torch.__version__ = re.search(r"[\d.]+[\d]", torch.__version__).group(0)
 
 
 startup_timer.record("other imports")
@@ -62,14 +62,26 @@ startup_timer.record("other imports")
 
 def prepare_environment():
     os.makedirs(os.path.join(SCRIPT_PATH, RepositoryConstant.DIR_REPOS), exist_ok=True)
-    git_clone(RepositoryConstant.BLIP_REPO, repo_dir('BLIP'),
-              "BLIP", RepositoryConstant.BLIP_CONMIT_HASH)
-    git_clone(RepositoryConstant.STABLE_DIFFUSION_REPO, repo_dir('stable-diffusion-stability-ai'),
-              "Stable Diffusion", RepositoryConstant.STABLE_DIFFUSION_COMMIT_HASH)
-    git_clone(RepositoryConstant.K_DIFFUSION_REPO, repo_dir('k-diffusion'),
-              "K-diffusion", RepositoryConstant.K_DIFFUSION_COMMIT_HASH)
+    git_clone(
+        RepositoryConstant.BLIP_REPO,
+        repo_dir("BLIP"),
+        "BLIP",
+        RepositoryConstant.BLIP_CONMIT_HASH,
+    )
+    git_clone(
+        RepositoryConstant.STABLE_DIFFUSION_REPO,
+        repo_dir("stable-diffusion-stability-ai"),
+        "Stable Diffusion",
+        RepositoryConstant.STABLE_DIFFUSION_COMMIT_HASH,
+    )
+    git_clone(
+        RepositoryConstant.K_DIFFUSION_REPO,
+        repo_dir("k-diffusion"),
+        "K-diffusion",
+        RepositoryConstant.K_DIFFUSION_COMMIT_HASH,
+    )
     script_callbacks.model_loaded_callback(shared.sd_model)
-    cuda_visible_devices = os.environ.get('CUDA_VISIBLE_DEVICES', '1,0')
+    cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "1,0")
 
 
 def check_versions():
@@ -79,7 +91,8 @@ def check_versions():
     expected_torch_version = "1.13.1"
 
     if version.parse(torch.__version__) < version.parse(expected_torch_version):
-        errors.print_error_explanation(f"""
+        errors.print_error_explanation(
+            f"""
 You are running torch {torch.__version__}.
 The program is tested to work with torch {expected_torch_version}.
 To reinstall the desired version, run with commandline flag --reinstall-torch.
@@ -87,20 +100,25 @@ Beware that this will cause a lot of large files to be downloaded, as well as
 there are reports of issues with training tab on the latest version.
 
 Use --skip-version-check commandline argument to disable this check.
-        """.strip())
+        """.strip()
+        )
 
     expected_xformers_version = "0.0.16rc425"
     if shared.xformers_available:
         import xformers
 
-        if version.parse(xformers.__version__) < version.parse(expected_xformers_version):
-            errors.print_error_explanation(f"""
+        if version.parse(xformers.__version__) < version.parse(
+            expected_xformers_version
+        ):
+            errors.print_error_explanation(
+                f"""
 You are running xformers {xformers.__version__}.
 The program is tested to work with xformers {expected_xformers_version}.
 To reinstall the desired version, run with commandline flag --reinstall-xformers.
 
 Use --skip-version-check commandline argument to disable this check.
-            """.strip())
+            """.strip()
+            )
 
 
 def initialize():
@@ -150,12 +168,20 @@ def initialize():
 
     shared.opts.data["sd_model_checkpoint"] = shared.sd_model.sd_checkpoint_info.title
 
-    shared.opts.onchange("sd_model_checkpoint", wrap_queued_call(
-        lambda: app.ml.modules.sd_models.reload_model_weights()))
-    shared.opts.onchange("sd_vae", wrap_queued_call(
-        lambda: app.ml.modules.sd_vae.reload_vae_weights()), call=False)
-    shared.opts.onchange("sd_vae_as_default", wrap_queued_call(
-        lambda: app.ml.modules.sd_vae.reload_vae_weights()), call=False)
+    shared.opts.onchange(
+        "sd_model_checkpoint",
+        wrap_queued_call(lambda: app.ml.modules.sd_models.reload_model_weights()),
+    )
+    shared.opts.onchange(
+        "sd_vae",
+        wrap_queued_call(lambda: app.ml.modules.sd_vae.reload_vae_weights()),
+        call=False,
+    )
+    shared.opts.onchange(
+        "sd_vae_as_default",
+        wrap_queued_call(lambda: app.ml.modules.sd_vae.reload_vae_weights()),
+        call=False,
+    )
     startup_timer.record("opts onchange")
 
     shared.reload_hypernetworks()
@@ -167,7 +193,6 @@ def initialize():
     startup_timer.record("extra networks")
 
     if cmd_opts.tls_keyfile is not None and cmd_opts.tls_keyfile is not None:
-
         try:
             if not os.path.exists(cmd_opts.tls_keyfile):
                 print("Invalid path to TLS keyfile given")
@@ -182,7 +207,7 @@ def initialize():
 
     # make the program just exit at ctrl+c without waiting for anything
     def sigint_handler(sig, frame):
-        print(f'Interrupted with signal {sig} in {frame}')
+        print(f"Interrupted with signal {sig} in {frame}")
         os._exit(0)
 
     signal.signal(signal.SIGINT, sigint_handler)
