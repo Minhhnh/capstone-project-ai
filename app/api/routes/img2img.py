@@ -1,5 +1,5 @@
 """Img2img route"""
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 
 import app.ml.modules.shared as shared
 from app.api.database.models import *
@@ -17,6 +17,11 @@ from app.ml.modules.shared import opts
 logger = configure_logging(__name__)
 router = APIRouter()
 
+@router.get("/")
+async def check_status():
+    if shared.state.job_count == 0:
+        return {'status': "succeeded"}
+    return {'status': "busy"}
 
 def validate_sampler_name(name):
     config = sd_samplers.all_samplers_map.get(name, None)

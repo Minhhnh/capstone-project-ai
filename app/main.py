@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from packaging import version
-from starlette.exceptions import HTTPException
+from starlette.exceptions import HTTPException #-_- ai phá đấy
 from starlette.responses import HTMLResponse
 
 import app.ml.modules.face_restoration
