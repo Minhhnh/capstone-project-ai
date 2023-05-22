@@ -28,3 +28,5 @@ torchsde==0.2.5
 safetensors==0.2.7
 httpcore<=0.15
 fastapi==0.94.0
+python-dotenv==1.0.0
+loguru==0.6.0
